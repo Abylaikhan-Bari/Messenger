@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/chat.dart';
+import '../pages/chat_page.dart';
 
 class ChatListItem extends StatelessWidget {
   final Chat chat;
@@ -13,7 +14,12 @@ class ChatListItem extends StatelessWidget {
       subtitle: Text(chat.lastMessage),
       trailing: Text(chat.timestamp.toLocal().toString()),
       onTap: () {
-        // Navigate to chat page or perform any action when tapped
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatPage(chatId: chat.id),
+          ),
+        );
       },
     );
   }

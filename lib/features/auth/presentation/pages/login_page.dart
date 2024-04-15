@@ -33,6 +33,16 @@ class LoginPage extends StatelessWidget {
             ),
             // Login Button
             ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.pressed)) {
+                      return Theme.of(context).colorScheme.primary.withOpacity(0.5);
+                    }
+                    return null; // Use the component's default.
+                  },
+                ),
+              ),
               child: Text('Login'),
               onPressed: () async {
                 try {
