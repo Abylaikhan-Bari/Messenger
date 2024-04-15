@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../domain/message.dart';
 
@@ -11,18 +12,23 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  List<Message> messages = [];
   final TextEditingController _controller = TextEditingController();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  @override
-  void initState() {
-    super.initState();
-    // This would usually be where you load messages from your backend
-    messages = [
-      Message(id: '1', chatId: widget.chatId, senderId: '123', text: 'Hello!', timestamp: DateTime.now().subtract(Duration(minutes: 1))),
-      Message(id: '2', chatId: widget.chatId, senderId: '456', text: 'Hi there!', timestamp: DateTime.now().subtract(Duration(minutes: 2))),
-      // Add more messages as needed
-    ];
+  void sendMessage() {
+    final text = _controller.text;
+    if (text.isNotEmpty) {
+      final message = Message(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        chatId: widget.chatId,
+        senderId: '123', // Replace with actual sender ID
+        text: text,
+        timestamp: DateTime.now(),
+      );
+
+      _firestore.collection('chats/${widget.chatId}/messages').add(message.toJson());
+      _controller.clear();
+    }
   }
 
   @override
@@ -30,17 +36,26 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Chat'),
+        backgroundColor: Colors.green,
       ),
       body: Column(
         children: <Widget>[
           Expanded(
-            child: ListView.builder(
-              itemCount: messages.length,
-              reverse: true,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(messages[index].text),
-                  subtitle: Text(messages[index].timestamp.toLocal().toString()),
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _firestore.collection('chats/${widget.chatId}/messages').orderBy('timestamp', descending: true).snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+                final docs = snapshot.data!.docs;
+                return ListView.builder(
+                  itemCount: docs.length,
+                  reverse: true,
+                  itemBuilder: (context, index) {
+                    final message = Message.fromFirestore(docs[index]);
+                    return ListTile(
+                      title: Text(message.text),
+                      subtitle: Text(message.timestamp.toLocal().toString()),
+                    );
+                  },
                 );
               },
             ),
@@ -53,21 +68,7 @@ class _ChatPageState extends State<ChatPage> {
                 labelText: 'Send a message...',
                 suffixIcon: IconButton(
                   icon: Icon(Icons.send),
-                  onPressed: () {
-                    // Here you would normally handle sending the message
-                    if (_controller.text.isNotEmpty) {
-                      setState(() {
-                        messages.insert(0, Message(
-                          id: DateTime.now().toString(),
-                          chatId: widget.chatId,
-                          senderId: '123',  // Typically the current user ID
-                          text: _controller.text,
-                          timestamp: DateTime.now(),
-                        ));
-                      });
-                      _controller.clear();
-                    }
-                  },
+                  onPressed: sendMessage,
                 ),
               ),
             ),

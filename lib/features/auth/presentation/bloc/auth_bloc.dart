@@ -4,17 +4,21 @@ import '../../data/auth_repository.dart';
 import '../../data/user_model.dart';
 import '../../domain/user.dart';
 
-
 // Authentication States
 abstract class AuthState {}
+
 class AuthInitial extends AuthState {}
+
 class Authenticated extends AuthState {
   final User user;
 
   Authenticated(this.user);
 }
+
 class Unauthenticated extends AuthState {}
+
 class AuthLoading extends AuthState {}
+
 class AuthError extends AuthState {
   final String message;
 
@@ -23,18 +27,21 @@ class AuthError extends AuthState {
 
 // Authentication Events
 abstract class AuthEvent {}
+
 class AuthSignInRequested extends AuthEvent {
   final String email;
   final String password;
 
   AuthSignInRequested(this.email, this.password);
 }
+
 class AuthSignUpRequested extends AuthEvent {
   final String email;
   final String password;
 
   AuthSignUpRequested(this.email, this.password);
 }
+
 class AuthSignOutRequested extends AuthEvent {}
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
@@ -46,12 +53,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthSignOutRequested>(_onSignOutRequested);
   }
 
-  Future<void> _onSignInRequested(AuthSignInRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onSignInRequested(
+      AuthSignInRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      final UserModel? userModel = await authRepository.signIn(event.email, event.password);
+      final UserModel? userModel =
+      await authRepository.signIn(event.email, event.password);
       if (userModel != null) {
-        emit(Authenticated(userModel as User)); // UserModel should be a subtype of User
+        // Ensure that UserModel is a subtype of User before casting
+        if (userModel is User) {
+          emit(Authenticated(userModel as User));
+        } else {
+          emit(Unauthenticated());
+        }
       } else {
         emit(Unauthenticated());
       }
@@ -60,12 +74,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  Future<void> _onSignUpRequested(AuthSignUpRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onSignUpRequested(
+      AuthSignUpRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      final UserModel? userModel = await authRepository.signUp(event.email, event.password);
+      final UserModel? userModel =
+      await authRepository.signUp(event.email, event.password);
       if (userModel != null) {
-        emit(Authenticated(userModel as User)); // UserModel should be a subtype of User
+        // Ensure that UserModel is a subtype of User before casting
+        if (userModel is User) {
+          emit(Authenticated(userModel as User));
+        } else {
+          emit(Unauthenticated());
+        }
       } else {
         emit(Unauthenticated());
       }
@@ -74,9 +95,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-
-  Future<void> _onSignOutRequested(AuthSignOutRequested event, Emitter<AuthState> emit) async {
-    await authRepository.signOut();
-    emit(Unauthenticated());
+  Future<void> _onSignOutRequested(
+      AuthSignOutRequested event, Emitter<AuthState> emit) async {
+    try {
+      await authRepository.signOut();
+      emit(Unauthenticated());
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
   }
 }

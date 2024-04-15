@@ -1,9 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'features/messaging/presentation/pages/chats_page.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/registration_page.dart';
+import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/auth/data/auth_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,33 +15,38 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  final AuthRepository authRepository = AuthRepository(FirebaseAuth.instance);
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Messenger',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.active) {
-            // Checking the auth state - is the user logged in or not
-            User? user = snapshot.data as User?;
-            if (user == null) {
-              return LoginPage(); // Redirect to login page if user is not logged in
+    return BlocProvider(
+      create: (context) => AuthBloc(authRepository),
+      child: MaterialApp(
+        title: 'Messenger',
+        theme: ThemeData(
+          primarySwatch: Colors.green,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        debugShowCheckedModeBanner: false,
+        home: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.active) {
+              // Checking the auth state - is the user logged in or not
+              User? user = snapshot.data as User?;
+              if (user != null) {
+                return ChatsPage();
+              }
+              return LoginPage();
+            } else {
+              return Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
             }
-            return ChatsPage(); // Redirect to chat page if user is logged in
-          } else {
-            return Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(), // Show a loading spinner while checking auth state
-              ),
-            );
-          }
-        },
+          },
+        ),
       ),
     );
   }

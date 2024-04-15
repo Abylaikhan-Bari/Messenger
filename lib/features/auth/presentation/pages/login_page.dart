@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'registration_page.dart'; // Make sure this is the correct path to your RegisterPage
+import '../../../messaging/presentation/pages/chats_page.dart';
+import 'registration_page.dart';
+
 
 class LoginPage extends StatelessWidget {
   @override
@@ -33,12 +35,13 @@ class LoginPage extends StatelessWidget {
             ElevatedButton(
               child: Text('Login'),
               onPressed: () async {
-                // Implement login logic
                 try {
                   await FirebaseAuth.instance.signInWithEmailAndPassword(
                     email: emailController.text,
                     password: passwordController.text,
                   );
+                  // After successful login, navigate to the ChatsPage
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => ChatsPage()));
                 } on FirebaseAuthException catch (e) {
                   // Handle different Firebase auth errors here
                   print(e);

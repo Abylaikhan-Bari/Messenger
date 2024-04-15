@@ -1,32 +1,80 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/pages/login_page.dart';
 import '../../domain/chat.dart';
-import 'chat_page.dart'; // This is where chat messages would be shown
+import '../widgets/chat_list_item.dart';
+import 'chat_page.dart';
 
 class ChatsPage extends StatelessWidget {
-  final List<Chat> chats = [
-    Chat(id: '1', name: 'Chat One', lastMessage: 'Hey there!', timestamp: DateTime.now().subtract(Duration(minutes: 5))),
-    Chat(id: '2', name: 'Chat Two', lastMessage: 'How are you?', timestamp: DateTime.now().subtract(Duration(hours: 1))),
-    // Add more chats as needed
-  ];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Stream<List<Chat>> getChatsStream() {
+    return _firestore.collection('chats').snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return Chat.fromFirestore(doc);
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Chats'),
+        backgroundColor: Colors.green,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.exit_to_app, color: Colors.black),
+            onPressed: () {
+              // Show confirmation dialog
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Confirm Sign Out'),
+                    content: Text('Are you sure you want to sign out?'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close dialog
+                        },
+                        child: Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // Sign out
+                          context.read<AuthBloc>().add(AuthSignOutRequested());
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(builder: (context) => LoginPage()),
+                                (Route<dynamic> route) => false,
+                          );
+                        },
+                        child: Text('Sign Out'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
-      body: ListView.builder(
-        itemCount: chats.length,
-        itemBuilder: (context, index) {
-          Chat chat = chats[index];
-          return ListTile(
-            title: Text(chat.name),
-            subtitle: Text(chat.lastMessage),
-            trailing: Text(chat.timestamp.toLocal().toString()),
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => ChatPage(chatId: chat.id),
-              ));
+      body: StreamBuilder<List<Chat>>(
+        stream: getChatsStream(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text("Error fetching data"));
+          }
+          List<Chat> chats = snapshot.data ?? [];
+          return ListView.builder(
+            itemCount: chats.length,
+            itemBuilder: (context, index) {
+              return ChatListItem(chat: chats[index]); // Use ChatListItem here
             },
           );
         },
