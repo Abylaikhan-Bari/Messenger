@@ -51,8 +51,6 @@ void main() {
   // Instantiate FirebaseMessagingRepository with a Firestore instance
   FirebaseMessagingRepository messagingRepository = FirebaseMessagingRepository(FirebaseFirestore.instance);
 
-  // Now you can use messagingRepository to call its methods
-  // For example:
   final chatId = 'exampleChatId';
   messagingRepository.getMessages(chatId).then((either) {
     either.fold(
@@ -60,6 +58,4 @@ void main() {
           (messages) => print('Received messages: $messages'),
     );
   });
-
-  // Similarly, you can call sendMessage method
 }

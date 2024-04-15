@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../messaging/presentation/pages/chats_page.dart';
 
 class RegistrationPage extends StatefulWidget {
@@ -30,35 +29,24 @@ class _RegistrationPageState extends State<RegistrationPage> {
         User? firebaseUser = userCredential.user;
 
         if (firebaseUser != null) {
-          // Add user document to Firestore
           await _firestore.collection('users').doc(firebaseUser.uid).set({
             'email': firebaseUser.email,
-            'name': _name, // You'll need to add a field to capture the user's name
-            // Add other user details as necessary
+            'name': _name,
           });
         }
-
-        // Navigate to chats page after successful registration and Firestore document creation
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => ChatsPage()),
-        );
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ChatsPage()));
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Register'),
+        backgroundColor: Colors.green,
       ),
       body: Form(
         key: _formKey,
@@ -66,13 +54,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
           children: <Widget>[
             TextFormField(
               decoration: InputDecoration(labelText: 'Name'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your name';
-                }
-                return null;
-              },
-              onSaved: (value) => _name = value!, // Add this line
+              validator: (value) => value == null || value.isEmpty ? 'Please enter your name' : null,
+              onSaved: (value) => _name = value!,
             ),
             TextFormField(
               decoration: InputDecoration(labelText: 'Email'),
@@ -85,17 +68,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
               validator: (value) => value != null && value.length < 6 ? 'Password must be at least 6 characters' : null,
               onSaved: (value) => _password = value ?? '',
             ),
-            ElevatedButton(style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  if (states.contains(MaterialState.pressed)) {
-                    return Theme.of(context).colorScheme.primary.withOpacity(0.5);
-                  }
-                  return null; // Use the component's default.
-                },
+            ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
               ),
-            ),
-
               onPressed: _register,
               child: Text('Register'),
             ),

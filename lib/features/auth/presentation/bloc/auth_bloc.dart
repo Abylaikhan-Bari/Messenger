@@ -60,7 +60,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final UserModel? userModel =
       await authRepository.signIn(event.email, event.password);
       if (userModel != null) {
-        // Ensure that UserModel is a subtype of User before casting
         if (userModel is User) {
           emit(Authenticated(userModel as User));
         } else {
@@ -81,8 +80,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final UserModel? userModel =
       await authRepository.signUp(event.email, event.password);
       if (userModel != null) {
-        // Ensure that UserModel is a subtype of User before casting
-        if (userModel is User) {
+         if (userModel is User) {
           emit(Authenticated(userModel as User));
         } else {
           emit(Unauthenticated());

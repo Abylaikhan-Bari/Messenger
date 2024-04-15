@@ -5,12 +5,14 @@ class MessageModel extends Message {
     required String id,
     required String chatId,
     required String senderId,
+    required String name,
     required String text,
     required DateTime timestamp,
   }) : super(
     id: id,
     chatId: chatId,
     senderId: senderId,
+    name: name,
     text: text,
     timestamp: timestamp,
   );
@@ -20,6 +22,7 @@ class MessageModel extends Message {
       id: json['id'],
       chatId: json['chatId'],
       senderId: json['senderId'],
+      name: json['name'],
       text: json['text'],
       timestamp: DateTime.parse(json['timestamp']),
     );
@@ -30,6 +33,7 @@ class MessageModel extends Message {
       'id': id,
       'chatId': chatId,
       'senderId': senderId,
+      'name': name,
       'text': text,
       'timestamp': timestamp.toIso8601String(),
     };

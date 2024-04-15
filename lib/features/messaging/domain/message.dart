@@ -4,7 +4,7 @@ class Message {
   final String id;
   final String chatId;
   final String senderId;
-  final String name; // Confirm this is the correct field name for sender's name
+  final String name;
   final String text;
   final DateTime timestamp;
 
@@ -12,7 +12,7 @@ class Message {
     required this.id,
     required this.chatId,
     required this.senderId,
-    required this.name, // Make sure this matches the actual field name used
+    required this.name,
     required this.text,
     required this.timestamp,
   });
@@ -30,9 +30,9 @@ class Message {
     return Message(
       id: doc.id,
       chatId: data['chatId'] ?? '',
-      senderId: data['senderId'] as String, // Ensuring non-null with cast
+      senderId: data['senderId'] as String,
       name: data['name'] ?? 'Unknown',
-      text: data['text'] as String, // Ensuring non-null with cast
+      text: data['text'] as String,
       timestamp: (data['timestamp'] as Timestamp).toDate(),
     );
   }

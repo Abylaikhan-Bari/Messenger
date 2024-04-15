@@ -20,13 +20,10 @@ class UserModel extends AppUser {
         message: 'No user found for the provided user entity',
       );
     }
-    // Assuming email and name are not null for the authenticated Firebase user
-    // The name field should be handled separately as Firebase user does not provide it directly
-    // You might have a separate mechanism or a profile in Firestore to fetch the name
     return UserModel(
         id: user.uid,
         email: user.email!,
-        name: 'Default Name' // Placeholder, should be replaced with actual logic to get the user's name
+        name: 'Default Name'
     );
   }
 

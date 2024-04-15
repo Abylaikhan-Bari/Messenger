@@ -98,7 +98,6 @@ class _ChatPageState extends State<ChatPage> {
         ),
       );
     } catch (e) {
-      // Log the error or handle it appropriately
       return ListTile(
         title: Text('Error displaying message'),
         subtitle: Text(e.toString()),
@@ -110,7 +109,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(chatName), // Display dynamic chat name
+        title: Text(chatName),
         backgroundColor: Colors.green,
       ),
       body: Column(

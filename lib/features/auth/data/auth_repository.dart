@@ -16,7 +16,6 @@ class AuthRepository {
           email: email, password: password);
       return UserModel.fromFirebaseUser(credential.user);
     } catch (e) {
-      // Handle the sign-in errors here
       print('Sign in error: $e');
       return null;
     }
@@ -34,7 +33,6 @@ class AuthRepository {
 
       return UserModel.fromFirebaseUser(credential.user);
     } catch (e) {
-      // Handle the sign-up errors here
       print('Sign up error: $e');
       return null;
     }
