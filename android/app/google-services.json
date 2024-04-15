@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "374236285551",
+    "project_id": "messenger-59222",
+    "storage_bucket": "messenger-59222.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:374236285551:android:dcb78f36ddfc527fcc5b9a",
+        "android_client_info": {
+          "package_name": "com.aikei.messenger"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgIZI4U1sbuKeOT00HMZ-oHJoA-z73dzE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
